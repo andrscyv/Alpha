@@ -12,6 +12,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -90,7 +91,9 @@ public class Client extends Thread {
         try {
             int serverPort = portTcp;
 
-            s = new Socket(serverIp, serverPort);    
+            s = new Socket(serverIp, serverPort);
+            //s = new Socket();
+            //s.connect(new InetSocketAddress(serverIp, serverPort), 500);
          //   s = new Socket("127.0.0.1", serverPort);    
             DataInputStream in = new DataInputStream( s.getInputStream());
             DataOutputStream out =
@@ -146,6 +149,10 @@ public class Client extends Thread {
         c.start();
         c = new Client("localhost", "segundo");
         c.start();
+        for(int i = 0; i < 30; i++){
+            c = new Client("localhost", i+"");
+            c.start();
+        }
     }
     
 }
