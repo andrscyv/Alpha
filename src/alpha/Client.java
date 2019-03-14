@@ -67,7 +67,7 @@ public class Client extends Thread {
                     if( lastId != msgDeco[1]){
                         //System.out.println("Mensaje nuevo");
                         lastId = msgDeco[1];
-                        this.send(id);
+                        this.send();
                     }
                         
                     
@@ -86,7 +86,7 @@ public class Client extends Thread {
         } 
     }
     
-    public void send(String msg){
+    public void send(){
         Socket s = null;
         try {
             int serverPort = portTcp;
@@ -98,8 +98,8 @@ public class Client extends Thread {
             DataInputStream in = new DataInputStream( s.getInputStream());
             DataOutputStream out =
                     new DataOutputStream( s.getOutputStream());
-            out.writeUTF(msg);        	// UTF is a string encoding 
-            System.out.println("Cliente " + id+ " envio "+ msg);
+            out.writeUTF(this.id);        	// UTF is a string encoding 
+            System.out.println("Cliente " + id+ " envio mensaje");
 
 //            String data = in.readUTF();	      
 //            System.out.println("Received: "+ data) ;      
@@ -122,7 +122,7 @@ public class Client extends Thread {
         }
     
     public void registerPlayer(){
-        System.setProperty("java.security.policy","file:/Users/El_jefe/NetBeansProjects/Alpha/src/alpha/rmi.policy");
+        System.setProperty("java.security.policy","file:"+System.getProperty("user.dir")+ "/src/alpha/rmi.policy");
 
         if (System.getSecurityManager() == null) {
            System.setSecurityManager(new SecurityManager());
@@ -150,10 +150,10 @@ public class Client extends Thread {
         c.start();
         c = new Client("localhost", "segundo");
         c.start();
-        for(int i = 0; i < 30; i++){
-            c = new Client("localhost", i+"");
-            c.start();
-        }
+//        for(int i = 0; i < 30; i++){
+//            c = new Client("localhost", i+"");
+//            c.start();
+//        }
     }
     
 }

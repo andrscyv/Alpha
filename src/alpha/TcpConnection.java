@@ -25,30 +25,39 @@ public class TcpConnection extends Thread {
     Socket clientSocket;
     HashMap<String,Integer> scoreTable;
     ServerSocket listenSocket;
+    boolean winner;
     public TcpConnection (ServerSocket listenSocket, HashMap<String,Integer> scoreTable) {
         this.listenSocket = listenSocket;
         this.scoreTable = scoreTable;
+        winner = false;
     }
 
     @Override
     public void run(){
         Integer score;
         try {			                 // an echo server
-            clientSocket = listenSocket.accept();
-            in = new DataInputStream(clientSocket.getInputStream());
-            out =new DataOutputStream(clientSocket.getOutputStream());
-            String roundWinner = in.readUTF();
-            score = scoreTable.get(roundWinner);
-            scoreTable.put(roundWinner,score == null ? new Integer(1) : new Integer(score.intValue() + 1));
-            System.out.println("Ganador de la ronda: " + roundWinner + " puntaje : "+scoreTable.get(roundWinner));
-            clientSocket.close();
+            
+            while(true){
+                clientSocket = listenSocket.accept();
+                in = new DataInputStream(clientSocket.getInputStream());
+                out =new DataOutputStream(clientSocket.getOutputStream());
+                if( !winner ){
+                    String roundWinner = in.readUTF();
+                    score = scoreTable.get(roundWinner);
+                    scoreTable.put(roundWinner,score == null ? new Integer(1) : new Integer(score.intValue() + 1));
+                    System.out.println("Ganador de la ronda: " + roundWinner + " puntaje : "+scoreTable.get(roundWinner));
+                    winner = true;
+                }
+                clientSocket.close();
+            }
         } 
         catch(EOFException e) {
             System.out.println("EOF:"+e.getMessage());
         } 
         catch(IOException e) {
             System.out.println("IO:"+e.getMessage());
-        } 
+        }
+        //System.out.println("Tcp connection stopped listening");
 //        finally {
 //            try {
 //                clientSocket.close();
