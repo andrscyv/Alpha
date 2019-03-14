@@ -53,19 +53,19 @@ public class Client extends Thread {
 
 	    	byte[] buffer = new byte[20];
  	   	while( true ) {
-                    System.out.println("Waiting for messages");
+                   // System.out.println("Cliente "+id +" escuchando ... ");
                     DatagramPacket messageIn = 
 			new DatagramPacket(buffer, buffer.length);
  		    s.receive(messageIn);
                     aux = new String(messageIn.getData()).trim().split(";");
                     for( int i = 0 ; i < 2; i++){
                         msgDeco[i] = Integer.parseInt(aux[i]);
-                        System.out.print(msgDeco[i] + " ");
+                        //System.out.print(msgDeco[i] + " ");
                         //System.out.println("");
                     }
-                    System.out.println("");
+                    //System.out.println("");
                     if( lastId != msgDeco[1]){
-                        System.out.println("Mensaje nuevo");
+                        //System.out.println("Mensaje nuevo");
                         lastId = msgDeco[1];
                         this.send(id);
                     }
@@ -99,6 +99,7 @@ public class Client extends Thread {
             DataOutputStream out =
                     new DataOutputStream( s.getOutputStream());
             out.writeUTF(msg);        	// UTF is a string encoding 
+            System.out.println("Cliente " + id+ " envio "+ msg);
 
 //            String data = in.readUTF();	      
 //            System.out.println("Received: "+ data) ;      
