@@ -11,4 +11,5 @@ package Interfaces;
  */
 public interface PikachuListener {
     int receivedNewPikachu(int position);
+    int someoneWon(int position);
 }
