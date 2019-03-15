@@ -185,6 +185,7 @@ public class Server {
                     System.out.println("Prom rtt: "+prom);
                     System.out.println("Desviacion estandar rtt: "+vari);
                     System.out.println("=============================================================");
+                    Server.multiCastWinner(multIp, serial, winnerId);
                 }
                 initTime = System.nanoTime();
                 Server.multiCastMonster(multIp, serial);

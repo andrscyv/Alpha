@@ -6,6 +6,7 @@
 package alpha;
 
 import Interfaces.RegistryInt;
+import Interfaces.PikachuListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -20,24 +21,45 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author El_jefe
  */
+
+
+
 public class Client extends Thread {
     public String id;
     public String userName;
     public String multIp;
     public int portTcp;
     public String serverIp;
+    private List<PikachuListener> listeners = new ArrayList<PikachuListener>();
     
     public Client(String serverIp, String userName){
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.serverIp = serverIp;
         this.userName = userName;
         this.registerPlayer();
+        this.start();
     }
+    
+    
+    public void addListener(PikachuListener toAdd) {
+        listeners.add(toAdd);
+    }
+    
+    public void receivedNewPikachu(int newPosition) {
+        // Notify everybody that may be interested.
+        for (PikachuListener pikachu : listeners){
+            pikachu.receivedNewPikachu(newPosition);
+        }
+    }
+    
+    
     @Override
     public void run(){
         ByteBuffer wrapped;
@@ -58,6 +80,7 @@ public class Client extends Thread {
 			new DatagramPacket(buffer, buffer.length);
  		    s.receive(messageIn);
                     aux = new String(messageIn.getData()).trim().split(";");
+               
                     for( int i = 0 ; i < 2; i++){
                         msgDeco[i] = Integer.parseInt(aux[i]);
                         //System.out.print(msgDeco[i] + " ");
@@ -67,7 +90,10 @@ public class Client extends Thread {
                     if( lastId != msgDeco[1]){
                         //System.out.println("Mensaje nuevo");
                         lastId = msgDeco[1];
-                        this.send();
+                        
+                        System.out.println("Nueva posición de Pikachu: "+msgDeco[0]);
+                        this.receivedNewPikachu(msgDeco[0]);
+                        //this.send();
                     }
                         
                     
@@ -87,6 +113,7 @@ public class Client extends Thread {
     }
     
     public void send(){
+        System.out.println("LE ATINE AL PIKACHU!!!!");
         Socket s = null;
         try {
             int serverPort = portTcp;
