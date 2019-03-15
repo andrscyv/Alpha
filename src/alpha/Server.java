@@ -128,7 +128,7 @@ public class Server {
         //Configuracion del juego
         int winnerAmount = 3;
         boolean isFirst = true;
-        long waitAnswerMilis = 500; 
+        long waitAnswerMilis = 2000; 
         long startTime;
         boolean stopWaiting = false;
         DataInputStream in;
