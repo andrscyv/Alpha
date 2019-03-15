@@ -6,8 +6,10 @@
 package alpha;
 
 import Interfaces.RegistryInt;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -51,16 +53,16 @@ public class Server {
 	    	DatagramPacket messageOut = 
 			new DatagramPacket(m, m.length, group, 6299);
 	    	s.send(messageOut);
-                System.out.println("Se envio: " + msg);
+                //System.out.println("Se envio: " + msg);
 
 	    	s.leaveGroup(group);		
  	    }
          catch (SocketException e){
-             System.out.println("Socket: " + e.getMessage());
+             //System.out.println("Socket: " + e.getMessage());
              throw e;
 	 }
          catch (IOException e){
-             System.out.println("IO: " + e.getMessage());
+             //System.out.println("IO: " + e.getMessage());
              throw e;
          }
 	 finally {
@@ -112,7 +114,7 @@ public class Server {
                     res = key;
                 // do what you have to do here
                 // In your case, another loop.
-                System.out.println("id : "+key+" score: "+value);
+                //System.out.println("id : "+key+" score: "+value);
             }
             return res;
         }
@@ -128,7 +130,7 @@ public class Server {
         //Configuracion del juego
         int winnerAmount = 3;
         boolean isFirst = true;
-        long waitAnswerMilis = 2000; 
+        long waitAnswerMilis = 500; 
         long startTime;
         boolean stopWaiting = false;
         DataInputStream in;
@@ -157,6 +159,7 @@ public class Server {
         registry.rebind(name, stub);
         System.out.println("GameRegistry en linea...");
         String winnerId;
+        int contEstadisticas = 0;
         
         //Estadisticas
         long sum, sqrdSum, prom , vari;
@@ -167,14 +170,18 @@ public class Server {
                 if( winnerId != null ){
                     System.out.println("=============================================================");
                     System.out.println("Ganador global: "+ winnerId);
+                    
 
                     scoreTable = new HashMap<String, Integer>();
                     sum  = 0;
                     sqrdSum = 0;
+                    String fileContent ="";
                     for( Long l : rtt){
                         //System.out.println(l);
                         sum += l;
                         sqrdSum+= l*l;
+                        //System.out.println(l+"");
+                        fileContent += l+"\n";
                     }
                     prom = sum/((rtt.size())*1000000);
                     sqrdSum = 0;
@@ -186,6 +193,14 @@ public class Server {
                     System.out.println("Desviacion estandar rtt: "+vari);
                     System.out.println("=============================================================");
                     Server.multiCastWinner(multIp, serial, winnerId);
+                    
+                    if(contEstadisticas < 10){
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("estadisticas"+contEstadisticas+".csv"));
+                    writer.write(fileContent);
+                    writer.close();
+                    }
+                    contEstadisticas++;
+                    rtt = new ArrayList<>();
                 }
                 initTime = System.nanoTime();
                 Server.multiCastMonster(multIp, serial);

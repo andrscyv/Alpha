@@ -50,7 +50,7 @@ public class TcpConnection extends Thread {
                     String roundWinner = in.readUTF();
                     score = scoreTable.get(roundWinner);
                     scoreTable.put(roundWinner,score == null ? new Integer(1) : new Integer(score.intValue() + 1));
-                    System.out.println("Ganador de la ronda: " + roundWinner + " puntaje : "+scoreTable.get(roundWinner));
+                    //System.out.println("Ganador de la ronda: " + roundWinner + " puntaje : "+scoreTable.get(roundWinner));
                     winner = true;
                 }
                 clientSocket.close();
