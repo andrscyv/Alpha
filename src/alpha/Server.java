@@ -108,9 +108,11 @@ public class Server {
             for(Map.Entry<String, Integer> entry : scoreTable.entrySet()) {
                 String key = entry.getKey();
                 Integer value = entry.getValue();
-                res = value.compareTo(winnerAmount) >= 0 ? key : null;
+                if( value >= winnerAmount )
+                    res = key;
                 // do what you have to do here
                 // In your case, another loop.
+                System.out.println("id : "+key+" score: "+value);
             }
             return res;
         }
@@ -122,7 +124,7 @@ public class Server {
         String serverIp = "localhost";
         int portTcp = 4447;
         int serial = 0;
-        int winnerAmount = 5;
+        int winnerAmount = 3;
         boolean isFirst = true;
         long waitAnswerMilis = 3000; 
         long startTime;
@@ -165,6 +167,7 @@ public class Server {
                 conn.start();
                 Thread.sleep(2000);
                 listenSocket.close();
+                conn.join();
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
