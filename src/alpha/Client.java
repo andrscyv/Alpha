@@ -6,6 +6,7 @@
 package alpha;
 
 import Interfaces.RegistryInt;
+import Interfaces.PikachuListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -20,24 +21,45 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author El_jefe
  */
+
+
+
 public class Client extends Thread {
     public String id;
     public String userName;
     public String multIp;
     public int portTcp;
     public String serverIp;
+    private List<PikachuListener> listeners = new ArrayList<PikachuListener>();
     
     public Client(String serverIp, String userName){
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.serverIp = serverIp;
         this.userName = userName;
         this.registerPlayer();
+        this.start();
     }
+    
+    
+    public void addListener(PikachuListener toAdd) {
+        listeners.add(toAdd);
+    }
+    
+    public void receivedNewPikachu(int newPosition) {
+        // Notify everybody that may be interested.
+        for (PikachuListener pikachu : listeners){
+            pikachu.receivedNewPikachu(newPosition);
+        }
+    }
+    
+    
     @Override
     public void run(){
         ByteBuffer wrapped;
@@ -58,6 +80,7 @@ public class Client extends Thread {
 			new DatagramPacket(buffer, buffer.length);
  		    s.receive(messageIn);
                     aux = new String(messageIn.getData()).trim().split(";");
+               
                     for( int i = 0 ; i < 2; i++){
                         msgDeco[i] = Integer.parseInt(aux[i]);
                         //System.out.print(msgDeco[i] + " ");
@@ -67,7 +90,10 @@ public class Client extends Thread {
                     if( lastId != msgDeco[1]){
                         //System.out.println("Mensaje nuevo");
                         lastId = msgDeco[1];
-                        this.send(id);
+                        
+                        System.out.println("Nueva posición de Pikachu: "+msgDeco[0]);
+                        this.receivedNewPikachu(msgDeco[0]);
+                        //this.send();
                     }
                         
                     
@@ -86,7 +112,8 @@ public class Client extends Thread {
         } 
     }
     
-    public void send(String msg){
+    public void send(){
+        System.out.println("LE ATINE AL PIKACHU!!!!");
         Socket s = null;
         try {
             int serverPort = portTcp;
@@ -98,8 +125,8 @@ public class Client extends Thread {
             DataInputStream in = new DataInputStream( s.getInputStream());
             DataOutputStream out =
                     new DataOutputStream( s.getOutputStream());
-            out.writeUTF(msg);        	// UTF is a string encoding 
-            System.out.println("Cliente " + id+ " envio "+ msg);
+            out.writeUTF(this.id);        	// UTF is a string encoding 
+            System.out.println("Cliente " + id+ " envio mensaje");
 
 //            String data = in.readUTF();	      
 //            System.out.println("Received: "+ data) ;      
@@ -122,7 +149,7 @@ public class Client extends Thread {
         }
     
     public void registerPlayer(){
-        System.setProperty("java.security.policy","file:/Users/El_jefe/NetBeansProjects/Alpha/src/alpha/rmi.policy");
+        System.setProperty("java.security.policy","file:"+System.getProperty("user.dir")+ "/src/alpha/rmi.policy");
 
         if (System.getSecurityManager() == null) {
            System.setSecurityManager(new SecurityManager());
@@ -150,10 +177,10 @@ public class Client extends Thread {
         c.start();
         c = new Client("localhost", "segundo");
         c.start();
-        for(int i = 0; i < 30; i++){
-            c = new Client("localhost", i+"");
-            c.start();
-        }
+//        for(int i = 0; i < 30; i++){
+//            c = new Client("localhost", i+"");
+//            c.start();
+//        }
     }
     
 }
