@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -59,6 +60,12 @@ public class GameWindow extends javax.swing.JFrame implements PikachuListener{
         return position;//To change body of generated methods, choose Tools | Templates.
     }
     
+    @Override
+    public int someoneWon(int position) {
+        this.monsters[this.activePikachu].setIcon(null);
+        JOptionPane.showMessageDialog(null, "JUGADOR GANADOR: " + String.valueOf(position));
+        return position;
+    }
     
     public void addClickListenersToPikachus(Client client){
         for(int i = 0; i < this.monsters.length; i++){
@@ -353,5 +360,6 @@ public class GameWindow extends javax.swing.JFrame implements PikachuListener{
     private javax.swing.JLabel txtTCPPort;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
+
 
 }

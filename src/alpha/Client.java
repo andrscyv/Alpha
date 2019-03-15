@@ -59,6 +59,12 @@ public class Client extends Thread {
         }
     }
     
+    public void someoneWon(int winnerId){
+        for (PikachuListener pikachu : listeners){
+            pikachu.someoneWon(winnerId);
+        }
+    }
+    
     
     @Override
     public void run(){
@@ -91,9 +97,14 @@ public class Client extends Thread {
                         //System.out.println("Mensaje nuevo");
                         lastId = msgDeco[1];
                         
-                        System.out.println("Nueva posición de Pikachu: "+msgDeco[0]);
-                        this.receivedNewPikachu(msgDeco[0]);
-                        //this.send();
+                        if(msgDeco[0] == -1){
+                            System.out.println("YA GANÓ: "+msgDeco[2]);
+                            this.someoneWon(msgDeco[2]);
+                        }
+                        else{
+                            System.out.println("Nueva posición de Pikachu: "+msgDeco[0]);
+                            this.receivedNewPikachu(msgDeco[0]);  
+                        }
                     }
                         
                     
@@ -113,7 +124,7 @@ public class Client extends Thread {
     }
     
     public void send(){
-        System.out.println("LE ATINE AL PIKACHU!!!!");
+        System.out.println("LE ATINE AL PIKACHU");
         Socket s = null;
         try {
             int serverPort = portTcp;
