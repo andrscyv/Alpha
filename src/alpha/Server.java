@@ -102,7 +102,7 @@ public class Server {
         }
         
     }
-        
+        //Checa si hay un jugador con el puntaje para ganar
         private static String winnerExist( HashMap<String, Integer> scoreTable, int winnerAmount){
             String res = null;
             for(Map.Entry<String, Integer> entry : scoreTable.entrySet()) {
@@ -124,9 +124,11 @@ public class Server {
         String serverIp = "localhost";
         int portTcp = 4447;
         int serial = 0;
+        
+        //Configuracion del juego
         int winnerAmount = 3;
         boolean isFirst = true;
-        long waitAnswerMilis = 3000; 
+        long waitAnswerMilis = 500; 
         long startTime;
         boolean stopWaiting = false;
         DataInputStream in;
@@ -136,9 +138,13 @@ public class Server {
         String roundWinner;
         TcpConnection conn;
         HashMap<String, Integer> scoreTable = new HashMap<String, Integer>();
+        long initTime;
+        ArrayList<Long> rtt = new ArrayList<>();
         
         System.setProperty("java.security.policy","file:"+System.getProperty("user.dir")+ "/src/alpha/rmi.policy");
-
+        
+        
+        //RMI REGISTRY 
         if (System.getSecurityManager() == null) {
            System.setSecurityManager(new SecurityManager());
         }
@@ -152,20 +158,40 @@ public class Server {
         System.out.println("GameRegistry en linea...");
         String winnerId;
         
+        //Estadisticas
+        long sum, sqrdSum, prom , vari;
+        
         while( true ){
             try {
                 winnerId = Server.winnerExist(scoreTable, winnerAmount);
                 if( winnerId != null ){
                     System.out.println("=============================================================");
                     System.out.println("Ganador global: "+ winnerId);
-                    System.out.println("=============================================================");
+
                     scoreTable = new HashMap<String, Integer>();
+                    sum  = 0;
+                    sqrdSum = 0;
+                    for( Long l : rtt){
+                        //System.out.println(l);
+                        sum += l;
+                        sqrdSum+= l*l;
+                    }
+                    prom = sum/((rtt.size())*1000000);
+                    sqrdSum = 0;
+                    for(Long l : rtt){
+                        sqrdSum = (l-prom)*(l-prom);
+                    }
+                    vari =(long)( Math.sqrt((double)sqrdSum/rtt.size())*1/1000000);
+                    System.out.println("Prom rtt: "+prom);
+                    System.out.println("Desviacion estandar rtt: "+vari);
+                    System.out.println("=============================================================");
                 }
+                initTime = System.nanoTime();
                 Server.multiCastMonster(multIp, serial);
                 listenSocket = new ServerSocket(portTcp);
-                conn = new TcpConnection(listenSocket, scoreTable);
+                conn = new TcpConnection(listenSocket, scoreTable,initTime, rtt);
                 conn.start();
-                Thread.sleep(2000);
+                Thread.sleep(waitAnswerMilis);
                 listenSocket.close();
                 conn.join();
             } catch (Exception ex) {

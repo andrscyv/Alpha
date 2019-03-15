@@ -26,15 +26,20 @@ public class TcpConnection extends Thread {
     HashMap<String,Integer> scoreTable;
     ServerSocket listenSocket;
     boolean winner;
-    public TcpConnection (ServerSocket listenSocket, HashMap<String,Integer> scoreTable) {
+    long initTime;
+    ArrayList<Long> rtt;
+    public TcpConnection (ServerSocket listenSocket, HashMap<String,Integer> scoreTable, long initTime, ArrayList<Long> rtt ) {
         this.listenSocket = listenSocket;
         this.scoreTable = scoreTable;
         winner = false;
+        this.initTime = initTime;
+        this.rtt = rtt;
     }
 
     @Override
     public void run(){
         Integer score;
+        //long receivedTime;
         try {			                 // an echo server
             
             while(true){
@@ -49,6 +54,7 @@ public class TcpConnection extends Thread {
                     winner = true;
                 }
                 clientSocket.close();
+                rtt.add(System.nanoTime()-initTime);
             }
         } 
         catch(EOFException e) {

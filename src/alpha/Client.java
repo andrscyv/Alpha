@@ -146,14 +146,16 @@ public class Client extends Thread {
     
     
     public static void main(String[] args) throws Exception{
-        Client c = new Client("localhost", "primero");
-        c.start();
-        c = new Client("localhost", "segundo");
-        c.start();
-//        for(int i = 0; i < 30; i++){
-//            c = new Client("localhost", i+"");
-//            c.start();
-//        }
+//        Client c = new Client("localhost", "primero");
+//        c.start();
+//        c = new Client("localhost", "segundo");
+//        c.start();
+        System.setProperty("sun.net.maxDatagramSockets","101");
+        Client c;
+        for(int i = 0; i < 50; i++){
+            c = new Client("localhost", i+"");
+            c.start();
+        }
     }
     
 }
